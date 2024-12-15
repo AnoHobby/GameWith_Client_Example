@@ -35,7 +35,7 @@ int main() {
 		{"from_platform","ios"},
 		{"platform_directory_name",""},
 		{"user_name",""},
-		{"login_user_name","NAME"},//empty->default name
+		{"login_user_name","NAME"},//empty->default name,It is OK even if it differs from the registered information
 		{"user_id","0"},//user id
 		{"use-profile","1"},
 		{"body","TEXT"},
