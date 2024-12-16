@@ -3,6 +3,11 @@
 #else
 import http;
 #endif
+#include <string_view>
+auto extract_content(const auto& text,const std::string_view start_delimiter,const std::string_view end_delimiter) {
+	const auto number = text.find(start_delimiter) + start_delimiter.size();
+	return std::move(text.substr(number, text.find_first_of(end_delimiter, number) - number));
+}
 int main() {
 
 	http::Client login_client(L"https://gamewith.jp/user/login");
@@ -31,19 +36,27 @@ int main() {
 
 	};
 	login_client.request<http::methods::POST>(account_header, std::move(account_body.to_string())).query_header();
+
+	const auto html = login_client.request<http::methods::GET>(account_header).read_content();
+
 	http::Form_Url_Encoded post_body{
 		{"from_platform","ios"},
 		{"platform_directory_name",""},
 		{"user_name",""},
-		{"login_user_name","NAME"},//empty->default name,It is OK even if it differs from the registered information
-		{"user_id","0"},//user id
+		{"login_user_name",extract_content(html,"<p class=\"_name _is-cell\">","<")},//empty->default name,It is OK even if it differs from the registered information
+		//You can change the name freely, but in this example, it will be obtained from existing information.
+		{"user_id",extract_content(html,"loginUserId: \"","\"")},//user id
+		//find from
+		//loginUserId: "0000"
+		// or
+		//https://gamewith.jp/user/profile/0000"
 		{"use-profile","1"},
 		{"body","TEXT"},
 		{"file",""},
 		{"pre_image_path",""},
-		{"game_id","0000"},
+		{"game_id","0000"},//game id
 		{"mojolicious_csrf_token",""},
 	};
-	post_client.request<http::methods::POST>(account_header,post_body.to_string());
+	post_client.request<http::methods::POST>(account_header, post_body.to_string());
 	return 0;
 }
