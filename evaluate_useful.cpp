@@ -20,6 +20,6 @@ int main() {
 	{"mojolicious_csrf_token",""},
 
 	};
-	client.request<http::methods::POST>(header, body.to_string()).read_content();
+	client.request<http::methods::POST>(header, body.to_string());
 	return 0;
 }
